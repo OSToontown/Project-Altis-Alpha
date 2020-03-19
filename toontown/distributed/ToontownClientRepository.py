@@ -58,7 +58,7 @@ from toontown.dmenu import DMenuScreen, DMenuDisclaimer
 from toontown.friends import ToontownFriendSecret
 
 class ToontownClientRepository(OTPClientRepository.OTPClientRepository):
-    SupportTutorial = 1
+    SupportTutorial = 0
     GameGlobalsId = OTP_DO_ID_TOONTOWN
     SetZoneDoneEvent = 'TCRSetZoneDone'
     EmuSetZoneDoneEvent = 'TCREmuSetZoneDone'

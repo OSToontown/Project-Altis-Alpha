@@ -1,5 +1,5 @@
 # Art assets:
-model-path ../resources
+model-path resources
 
 # Server:
 server-version TTPA-Alpha-1.7.16

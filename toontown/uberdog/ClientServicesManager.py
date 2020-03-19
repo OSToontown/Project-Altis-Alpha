@@ -18,27 +18,7 @@ class ClientServicesManager(DistributedObjectGlobal):
 
     def performLogin(self, doneEvent):
         self.doneEvent = doneEvent
-
-        params = urllib.urlencode({'u': base.launcher.getUsername(), 'p': base.launcher.getPassword()})
-        headers = {"Content-type": "application/x-www-form-urlencoded","Accept": "application/json"}
-
-        conn = httplib.HTTPConnection('www.projectaltis.com')
-        conn.request("POST", "/api/login", params, headers)
-        
-        try:
-            response = json.loads(str(conn.getresponse().read()))
-            conn.close()
-        except:
-            self.notify.error('Failed to decode json login API response!')
-            return
-
-        if response['status'] != 'true':
-            # looks like we got a hacker!
-            raise SystemExit
-        else:
-            # the request was successful, set the login cookie and login.
-            cookie = response['additional']
-
+        cookie = base.launcher.getUsername()
         key = 'ed7dfd72f2a4e146e1421cda26737abf6435gfs4'
         digest_maker = hmac.new(key)
         digest_maker.update(cookie)

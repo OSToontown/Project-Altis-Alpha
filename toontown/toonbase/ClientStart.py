@@ -10,11 +10,10 @@ from direct.extensions_native import Mat3_extensions
 from direct.extensions_native import VBase3_extensions
 from direct.extensions_native import VBase4_extensions
 from direct.extensions_native import NodePath_extensions
-from panda3d.core import loadPrcFile
+from panda3d.core import *
 
-if __debug__:
-    loadPrcFile('config/general.prc')
-    loadPrcFile('config/release/dev.prc')
+loadPrcFile('config/general.prc')
+loadPrcFile('config/release/dev.prc')
 
 from direct.directnotify.DirectNotifyGlobal import directNotify
 from otp.settings.Settings import Settings
@@ -128,33 +127,6 @@ from toontown.toonbase import TTLocalizer
 from otp.otpbase import OTPGlobals
 OTPGlobals.setDefaultProductPrefix(TTLocalizer.ProductPrefix)
 
-# For Devs only. (The below)
-'''from direct.stdpy import threading, thread
-def __inject_wx(_):
-    code = textbox.GetValue()
-    exec (code, globals())
-
-def openInjector_wx():
-    import wx
-
-    app = wx.App(redirect = False)
-
-    frame = wx.Frame(None, title = "TTPA Dev Injector", size=(640, 400), style=wx.SYSTEM_MENU | wx.CAPTION | wx.CLOSE_BOX | wx.MINIMIZE_BOX)
-    panel = wx.Panel(frame)
-    button = wx.Button(parent = panel, id = -1, label = "Inject", size = (50, 20), pos = (295, 0))
-    global textbox
-    textbox = wx.TextCtrl(parent = panel, id = -1, pos = (20, 22), size = (600, 340), style = wx.TE_MULTILINE)
-    frame.Bind(wx.EVT_BUTTON, __inject_wx, button)
-
-    frame.Show()
-    app.SetTopWindow(frame)
-
-    textbox.AppendText(" ")
-
-    threading.Thread(target = app.MainLoop).start()
-
-openInjector_wx()'''
-
 if base.musicManagerIsValid:
     music = base.loader.loadMusic('phase_3/audio/bgm/tt_theme.ogg')
     if music:
@@ -170,18 +142,7 @@ from toontown.toonbase import ToontownLoader
 from direct.gui.DirectGui import *
 serverVersion = base.config.GetString('server-version', 'no_version_set')
 
-'''
-Let's have these here so you can tell if dev or debug mode is enabled or not
-easily.
-'''
-if __dev__:
-    serverVersionText = serverVersion + "-dev"
-elif __debug__:
-    serverVersionText = serverVersion + "-debug"
-else:
-    serverVersionText = serverVersion
-
-version = OnscreenText(serverVersionText, pos = (-1.3, -0.975), scale = 0.06, fg = Vec4(0, 0, 0, 1), align = TextNode.ALeft)
+version = OnscreenText(serverVersion, pos = (-1.3, -0.975), scale = 0.06, fg = Vec4(0, 0, 0, 1), align = TextNode.ALeft)
 version.setPos(0.03, 0.03)
 version.reparentTo(base.a2dBottomLeft)
 from toontown.suit import Suit

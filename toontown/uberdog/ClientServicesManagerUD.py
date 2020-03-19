@@ -57,19 +57,6 @@ if blacklist:
     blacklist = json.loads(blacklist)
 
 def judgeName(name): #All of this gunction is just fuckrd
-    if not name:
-        return False
-    
-    if blacklist:
-        for namePart in name.split(' '):
-            namePart = namePart.lower()
-            if len(namePart) < 1:
-                return False
-            
-            for banned in blacklist.get(namePart[0], []):
-                if banned in namePart:
-                    return False
-    # Use Google's API for checking badword list
     return True
 
 class AccountDB:
@@ -137,60 +124,6 @@ class LocalAccountDB(AccountDB):
     notify = directNotify.newCategory('LocalAccountDB')
 
     def lookup(self, username, callback):
-        httpReq = httplib.HTTPConnection('www.projectaltis.com')
-        httpReq.request('GET', '/api/validatetoken?t=%s' % (username))
-        
-        try:
-            XXX = httpReq.getresponse().read()
-            response = json.loads(XXX)
-        except:
-            callback({'success': False,
-                      'reason': 'Account Server Overloaded. Please Try Again Later!'})
-            return
-
-        if response['status'] != 'true':
-            
-            callback({'success': False,
-                      'reason': 'Account Server Overloaded. Please Try Again Later!'})
-            return
-        else:
-            cookie = response['additional']
-
-        if len(cookie) != 64: # Cookies should be exactly 64 Characters long!
-            callback({'success': False,
-                      'reason': 'Invalid Cookie Specified!'})
-            return
-
-        sanityChecks = httplib.HTTPConnection('www.projectaltis.com')
-        sanityChecks.request('GET', '/api/sanitycheck/%s' % (cookie))
-        
-        try:
-            XYZ = sanityChecks.getresponse().read()
-            print(str(XYZ))
-            response = json.loads(XYZ)
-        except:
-            print("KILL ME")
-            callback({'success': False,
-                      'reason': 'Account Server Overloaded. Please Try Again Later!'})
-            return
-        try:
-            if response["isbanned"] == "true":
-                callback({'success': False,
-                          'reason': 'Your account is banned from Project Altis!'})
-                return
-        except: 
-            pass
-                
-        #if response["statuscheck"] == "false":
-        #    callback({'success': False,
-        #              'reason': 'Toontown Project Altis is closed until the 20th!'})
-        #    return
-
-        if len(cookie) != 64: # Cookies should be exactly 64 Characters long!
-            callback({'success': False,
-                      'reason': 'Invalid Cookie Specified!'})
-            return
-        # Let's check if this user's ID is in your account database bridge:
         if str(cookie) not in self.dbm:
             # Nope. Let's associate them with a brand new Account object!
             response = {
@@ -226,154 +159,59 @@ class LocalAccountDB(AccountDB):
 
 
     def addNameRequest(self, avId, name):
-        # add type a name
-        self.notify.debug("adding name from %s : %s" %(avId, name))
-        try:
-            nameCheck = httplib.HTTPSConnection('www.projectaltis.com')
-            nameCheck.request('GET', '/api/addtypeaname2/441107756FCF9C3715A7E8EA84612924D288659243D5242BFC8C2E26FE2B0428/%s/%s' % (avId, name))
-            resp = json.loads(nameCheck.getresponse().read())
-        except:
-            self.notify.debug("Unable to add name request from %s (%s)" %(avId, name))
         return 'Success'
         
     def getNameStatus(self, avId):
-        # check type a name
-        self.notify.debug("debug: checking name from %s" %(avId))
-        try:
-            nameCheck = httplib.HTTPSConnection('www.projectaltis.com')
-            nameCheck.request('GET', '/api/checktypeaname/441107756FCF9C3715A7E8EA84612924D288659243D5242BFC8C2E26FE2B0428/avid/%s' % (avId)) # this should just use avid
-            resp = json.loads(nameCheck.getresponse().read())
-            
-            if resp[u"error"] == "true":
-                state = "ERROR"
-            
-            status = resp[u"status"]
-            if status == -1:
-                state = "REJECTED"
-            elif status == 0:
-                state = "PENDING"
-            elif status == 1:
-                state = "APPROVED"
-            else:
-                self.notify.debug("Get name status for av %s didnt return an expected value, got %s, setting to PENDING" % (avId, str(status)))
-                state = "REJECTED"
-        except:
-            self.notify.debug("Get name status failed for av %s, setting to pending" % avId)
-            state = "ERROR"
-        self.notify.debug("Get name status for av %s returned state %s" % (avId, state))
-        return state
-    
+        return 'APPROVED'
+
+    def removeNameRequest(self, avId):
+        return 'Success'
+
 class RemoteAccountDB(AccountDB):
     notify = directNotify.newCategory('RemoteAccountDB')
 
     def addNameRequest(self, avId, name):
-        return executeHttpRequest('names/append', ID=str(avId), Name=name)
+        return 'Success'
 
     def getNameStatus(self, avId):
-        return executeHttpRequest('names/status/?Id=' + str(avId))
+        return 'APPROVED'
 
     def removeNameRequest(self, avId):
-        return executeHttpRequest('names/remove', ID=str(avId))
+        return 'Success'
 
-    def lookup(self, token, callback):
-        # First, base64 decode the token:
-        try:
-            token = base64.b64decode(token)
-        except TypeError:
-            self.notify.warning('Could not decode the provided token!')
-            response = {
-                'success': False,
-                'reason': "Can't decode this token."
-            }
-            callback(response)
-            return response
-
-        # Ensure this token is a valid size:
-        if (not token) or ((len(token) % 16) != 0):
-            self.notify.warning('Invalid token length!')
-            response = {
-                'success': False,
-                'reason': 'Invalid token length.'
-            }
-            callback(response)
-            return response
-
-        # Next, decrypt the token using AES-128 in CBC mode:
-        accountServerSecret = simbase.config.GetString(
-            'account-server-secret', 'sjHgh43h43ZMcHnJ')
-
-        # Ensure that our secret is the correct size:
-        if len(accountServerSecret) > AES.block_size:
-            self.notify.warning('account-server-secret is too big!')
-            accountServerSecret = accountServerSecret[:AES.block_size]
-        elif len(accountServerSecret) < AES.block_size:
-            self.notify.warning('account-server-secret is too small!')
-            accountServerSecret += '\x80'
-            while len(accountServerSecret) < AES.block_size:
-                accountServerSecret += '\x00'
-
-        # Take the initialization vector off the front of the token:
-        iv = token[:AES.block_size]
-
-        # Truncate the token to get our cipher text:
-        cipherText = token[AES.block_size:]
-
-        # Decrypt!
-        cipher = AES.new(accountServerSecret, mode=AES.MODE_CBC, IV=iv)
-        try:
-            token = json.loads(cipher.decrypt(cipherText).replace('\x00', ''))
-            if ('timestamp' not in token) or (not isinstance(token['timestamp'], int)):
-                raise ValueError
-            if ('userid' not in token) or (not isinstance(token['userid'], int)):
-                raise ValueError
-            if ('accesslevel' not in token) or (not isinstance(token['accesslevel'], int)):
-                raise ValueError
-        except ValueError, e:
-            print e
-            self.notify.warning('Invalid token.')
-            response = {
-                'success': False,
-                'reason': 'Invalid token.'
-            }
-            callback(response)
-            return response
-
-        # Next, check if this token has expired:
-        expiration = simbase.config.GetInt('account-token-expiration', 1800)
-        tokenDelta = int(time.time()) - token['timestamp']
-        if tokenDelta > expiration:
-            response = {
-                'success': False,
-                'reason': 'This token has expired.'
-            }
-            callback(response)
-            return response
-
-        # This token is valid. That's all we need to know. Next, let's check if
-        # this user's ID is in your account database bridge:
-        if str(token['userid']) not in self.dbm:
-
-            # Nope. Let's associate them with a brand new Account object!
-            response = {
-                'success': True,
-                'userId': token['userid'],
-                'accountId': 0,
-                'accessLevel': max(int(token['accesslevel']), minAccessLevel)
-            }
-            callback(response)
-            return response
-
-        else:
-
-            # Yep. Let's return their account ID and access level!
-            response = {
-                'success': True,
-                'userId': token['userid'],
-                'accountId': int(self.dbm[str(token['userid'])]),
-                'accessLevel': max(int(token['accesslevel']), minAccessLevel)
-            }
-            callback(response)
-            return response
+        def lookup(self, username, callback):
+            if str(cookie) not in self.dbm:
+                # Nope. Let's associate them with a brand new Account object!
+                response = {
+                    'success': True,
+                    'userId': cookie,
+                    'accountId': 0,
+                    'accessLevel': 100
+                }
+                
+                callback(response)
+                return response
+    
+            else:
+                try:
+                    # We have an account already, let's return what we've got:
+                    response = {
+                        'success': True,
+                        'userId': cookie,
+                        'accountId': int(self.dbm[str(cookie)]),
+                        'accessLevel': int(response['powerlevel'])
+                    }
+                except:
+                    # We have an account already, let's return what we've got:
+                    response = {
+                        'success': True,
+                        'userId': cookie,
+                        'accountId': int(self.dbm[str(cookie)]),
+                        'accessLevel': int(150)
+                    }
+                
+                callback(response)
+                return response
 
 # --- FSMs ---
 class OperationFSM(FSM):
@@ -1173,16 +1011,7 @@ class ClientServicesManagerUD(DistributedObjectGlobalUD):
         # of race conditions.
         self.connection2fsm = {}
         self.account2fsm = {}
-
-        # Instantiate our account DB interface:
-        if accountDBType == 'developer':
-            self.accountDB = DeveloperAccountDB(self)
-        elif accountDBType == 'local':
-            self.accountDB = LocalAccountDB(self)
-        elif accountDBType == 'remote':
-            self.accountDB = RemoteAccountDB(self)
-        else:
-            self.notify.error('Invalid accountdb-type: ' + accountDBType)
+        self.pendingLogins = {}
 
     def killConnection(self, connId, reason):
         datagram = PyDatagram()
@@ -1226,13 +1055,32 @@ class ClientServicesManagerUD(DistributedObjectGlobalUD):
 
     def login(self, cookie, authKey):
         sender = self.air.getMsgSender()
-        
-        self.notify.debug('Received login cookie %r from %d' % (cookie, sender))
+        hwid = cookie.split("#")[1]
+        backupCookie = cookie.split("#")[0]
+        cookie = cookie.split("#")[0]
+        self.pendingLogins[sender] = (sender, hwid, backupCookie, cookie, authKey)
+
+        # CLIENTAGENT_GET_NETWORK_ADDRESS is defined in OtpDoGlobals for backwards compatibility with old versions of Panda3D
+        datagram = PyDatagram()
+        datagram.addServerHeader(sender, self.air.ourChannel, OtpDoGlobals.CLIENTAGENT_GET_NETWORK_ADDRESS)
+        datagram.addUint32(sender)
+        self.air.send(datagram)
+        login = self.pendingLogins.get(context)
+        if not login:
+            return
+
+        sender = login[0]
+        hwid = login[1]
+        backupCookie = login[2]
+        cookie = login[3]
+        authKey = login[4]
+        apiKey = str(ConfigVariableString('ws-key', 'secretkey'))
+        del self.pendingLogins[context]
 
         # Time to check this login to see if its authentic
         digest_maker = hmac.new(self.key)
-        digest_maker.update(cookie)
-        
+        digest_maker.update(backupCookie)
+
         if not hmac.compare_digest(digest_maker.hexdigest(), authKey):
             # recieved a bad authentication key from the client, drop there connection!
             self.killConnection(sender, 'Failed to login, recieved a bad login cookie %s!' % (cookie))
@@ -1247,7 +1095,7 @@ class ClientServicesManagerUD(DistributedObjectGlobalUD):
             return
 
         self.connection2fsm[sender] = LoginAccountFSM(self, sender)
-        self.connection2fsm[sender].request('Start', cookie)
+        self.connection2fsm[sender].request('Start', cookie, ip)
 
     def requestAvatars(self):
         self.notify.debug('Received avatar list request from %d' % (self.air.getMsgSender()))

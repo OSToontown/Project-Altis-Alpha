@@ -1,0 +1,30 @@
+{
+"musicVol": 1.0,
+"sfxVol": 1.0,
+"fieldofview": 52,
+"doorkey": true,
+"health-meter-mode": 2,
+"fullscreen": false,
+"experienceBarMode": true,
+"show-disclaimer": true,
+"res": [
+1280,
+720
+],
+"smoothanimations": true,
+"tpmsgs": true,
+"music": true,
+"toonChatSounds": true,
+"vertical-sync": false,
+"newGui": false,
+"sfx": true,
+"anti-aliasing": false,
+"Widescreen": 0,
+"show-cog-levels": true,
+"anisotropic-filtering": 0,
+"language": "English",
+"friendstatusmsgs": true,
+"loadDisplay": "pandagl",
+"experimental-touch": false,
+"interactkey": true
+}

@@ -1,51 +1,71 @@
-![logo](https://projectaltis.com/_assets/_img/logo.png)
+# ⚠️ Warning! - Do not use
 
-# Project Altis
-Project Altis is a private server for Disney's now defunct MMO-RPG, Toontown Online.
+<img src="https://raw.githubusercontent.com/NormalNed/Project-Altis/53168140c5b29f018467bedec35b4e59a83d0609/resources/phase_3.5/etc/transicon.png" align="right" width="200"/>
 
-## Contributors
+# Project Altis Alpha
+Project Altis Alpha Source, that just works.
 
-### Management Team
-* Dubito / Luke | Founder & Director
-* Bethy / Limey Mouse | Director | **Signed NDA**
-* Smirky Bumberpop | External Community Manager | Pending NDA
-* Loopy Goopy Googlenerd | Content Director | Pending NDA
-* Judge | Investor | **Signed NDA**
-* Drew | Technical Team Lead | Pending NDA
+# ❓ What is Project Altis
+Project Altis is a Private Server aimed around adding a crap ton of new features. We are going to keep up this tradition finishing and polishing up Altis for the community.
+This project is not related to Corporate Clash. We simply are porting the Altis Codebase and continuing it not adding everything clash did.
 
-### Technical Team
-* Sir Tubby Cheezyfish | Lead Game Developer | Pending NDA
-* Barks | Game Developer | Pending NDA
-* Dan | Game Developer | Pending NDA
-* Malverde | Game Developer | Pending NDA
-* Alice | Web Developer | **Signed NDA**
-* Ben | Launcher Developer | Pending NDA
-* Jakebooy | Web Developer | **Signed NDA**
+# 🔨 Setting Up
+Support is currently being worked on for MacOS and Non Arch Based Linux Distros
 
-### Creative Team
-* Bethy / Limey Mouse | Lead Artist | NDA Not Needed
-* Old Geezer | Modeller | Composer | NDA Not Needed
-* Maddie | Texture Artist | NDA Not Needed
-* VoidPoro | Texture Artist | NDA Not Needed
-* Pascal | Modeller | NDA Not Needed
+## 💻 Windows
 
-### Contributors
-* Dank Mickey | Former Developer | Boardbot Development
-* Josh Zimmer | Former Developer
-* Swag Foreman | Boardbot Models | Various parts of Cog Rooftops
-* Aura | Pick-A-Toon Concept / Inspiration
+### Installing Panda
+To get the source running you need to install the [Panda3D](https://github.com/NormalNed/ToontownStride/blob/master/Panda3D-1.11.0.exe) located in this repo.
 
-### Special Thanks
-* Toontown Infinite | Various Resources
-* Piplup | New battle GUI concept
-* Chandler | DNA Parser | Safely disclosing security issues
-* Developers of Panda3D
-* Developers of Astron
-* Toontown Rewritten | Reviving the sprit of Toontown
+### Installing Pip Dependencies
+The next part is to get our Dependencies. To get them run the **get-pip-packages.bat**
 
-## License
-Licensed to the Apache Software Foundation (ASF) under one or more contributor license agreements. See the NOTICE file distributed with this work for additional information regarding copyright ownership. The ASF licenses this file to you under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at
+### Running the Game
+Now run the [Start.bat](Start.bat) file to launch the game.
 
-http://www.apache.org/licenses/LICENSE-2.0
+## 🐧 Linux
+### Gathering Basic Dependencies
+##### Arch / Manjaro
+```yay -S xorg-server  xterm  libgl  python  openssl  libjpeg  libpng  freetype2  gtk2  libtiff  nvidia-cg-toolkit  openal  zlib  libxxf86dga  assimp  bullet  eigen  ffmpeg  fmodex  libxcursor  libxrandr  git  opencv  libgles  libegl```
 
-Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
+##### Debian / Ubuntu / Linux Mint
+```sudo apt-get install build-essential xterm pkg-config fakeroot python-dev libpng-dev libjpeg-dev libtiff-dev zlib1g-dev libssl-dev libx11-dev libgl1-mesa-dev libxrandr-dev libxxf86dga-dev libxcursor-dev bison flex libfreetype6-dev libvorbis-dev libeigen3-dev libopenal-dev libode-dev libbullet-dev nvidia-cg-toolkit libgtk2.0-dev libassimp-dev libopenexr-dev```
+
+### Getting Python 2
+
+The First step to get this Source running is obtaining a version of Python 2. The Python we use is located [here](https://github.com/NormalNed/python) but feel free to use the one in your package manager (should be **python2**)
+
+### Installing Pip
+
+Once you get the Python installed you need to type these following commands to install Pip
+```bash
+curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py
+python2 get-pip.py
+```
+
+### Installing Pip Dependencies
+The next part is to get our Dependencies. Open a Terminal inside of the Stride Project and follow these instructions below.
+```bash
+pip2.7 install -r requirements.txt
+```
+
+### Installing "our" Panda 3D
+We use a version of Astron Panda3D that is upstream code from the main repo. To set it up follow these instructions
+
+```bash
+git clone https://github.com/NormalNed/panda3d.git
+cd panda3d
+python2 makepanda/makepanda.py --everything --installer --no-egl --no-gles --no-gles2 --no-opencv --threads=4
+sudo python2 makepanda/installpanda.py
+sudo ldconfig
+```
+
+### Running the Game
+Now run the [Start.sh](Start.sh) file to launch the game.
+
+# 📝 Notice
+
+This repository contains code derived from the [BigNed repository.](https://github.com/BigNed/ToontownStride)
+
+BigNed is operated by rocketprogrammer, toonjoey, Jeeperpretzel, and EliasTDev.
+

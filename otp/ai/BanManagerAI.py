@@ -22,9 +22,7 @@ class BanFSM(FSM):
         self.avName = None
 
     def performBan(self):
-        httpReq = httplib.HTTPConnection('www.projectaltis.com')
-        httpReq.request('GET', '/api/ban/441107756FCF9C3715A7E8EA84612924D288659243D5242BFC8C2E26FE2B0428/%s' % self.accountId)
-        httpReq.getresponse().read()
+        self.ejectPlayer()
         print(self.accountId)
                            
     def ejectPlayer(self):
